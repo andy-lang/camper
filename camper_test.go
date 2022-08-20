@@ -9,51 +9,60 @@ import (
 
 func TestPoolKids(t *testing.T) {
 	url := "https://poolkidsband.bandcamp.com/album/pool-kids"
-	release := releaseFromURL(url)
+	release := ReleaseFromURL(url)
 	wantTitle := "Pool Kids"
-	if release.title != wantTitle {
-		t.Fatalf("got %s, wanted %s", release.title, wantTitle)
+	if release.Title != wantTitle {
+		t.Fatalf("got %s, wanted %s", release.Title, wantTitle)
 	}
 
 	wantReleased := time.Date(2022, 07, 22, 0, 0, 0, 0, time.UTC)
-	if release.released != wantReleased {
-		t.Fatalf("got release date %v, wanted %v", release.released, wantReleased)
+	if release.Released != wantReleased {
+		t.Fatalf("got release date %v, wanted %v", release.Released, wantReleased)
 	}
 
-	if len(release.tracks) != 12 {
+	if len(release.Tracks) != 12 {
 		t.Fatalf("expected 12 tracks")
 	}
 
-	if !slices.Contains(release.genres, "Tallahassee") {
-		t.Fatalf("Genres does not appear to be fully populated - %v", release.genres)
+	if !slices.Contains(release.Genres, "Tallahassee") {
+		t.Fatalf("Genres does not appear to be fully populated - %v", release.Genres)
 	}
 
 	// check the second track, verify it's all good
-	if release.tracks[1].title != "That's Physics, Baby" {
+	if release.Tracks[1].Title != "That's Physics, Baby" {
 		t.Fatalf("Second track doesn't exist or is in incorrect position")
 	}
 
-	if release.tracks[1].trackno != 2 {
+	if release.Tracks[1].Trackno != 2 {
 		t.Fatalf("Bad track number for track #2")
 	}
 
 	wantDuration, _ := time.ParseDuration("3m54s")
-	if release.tracks[1].duration != wantDuration {
+	if release.Tracks[1].Duration != wantDuration {
 		t.Fatalf("Bad track duration for track #2")
 	}
 }
 
 func TestLongTrack(t *testing.T) {
 	url := "https://vickychow.bandcamp.com/album/tristan-perich-surface-image"
-	release := releaseFromURL(url)
+	release := ReleaseFromURL(url)
 
 	wantDuration, _ := time.ParseDuration("1h3m1s")
-	gotDuration := release.tracks[0].duration
+	gotDuration := release.Tracks[0].Duration
 
 	if gotDuration != wantDuration {
 		t.Fatalf("Bad track duration, wanted %v, got %v", wantDuration, gotDuration)
 	}
 }
 
-// Track duration that's longer than an hour
-// Track duration that's less than a minute
+func TestShortTrack(t *testing.T) {
+	url := "https://pioulard.bandcamp.com/album/the-beno-t-pioulard-listening-matter-2"
+	release := ReleaseFromURL(url)
+
+	wantDuration, _ := time.ParseDuration("44s")
+	gotDuration := release.Tracks[3].Duration
+
+	if gotDuration != wantDuration {
+		t.Fatalf("Bad track duration, wanted %v, got %v", wantDuration, gotDuration)
+	}
+}
