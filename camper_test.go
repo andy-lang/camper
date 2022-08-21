@@ -12,7 +12,12 @@ func TestPoolKids(t *testing.T) {
 	release := ReleaseFromURL(url)
 	wantTitle := "Pool Kids"
 	if release.Title != wantTitle {
-		t.Fatalf("got %s, wanted %s", release.Title, wantTitle)
+		t.Fatalf("got title %s, wanted %s", release.Title, wantTitle)
+	}
+
+	wantArtist := "Pool Kids"
+	if release.Artist != wantArtist {
+		t.Fatalf("got artist %s, wanted %s", release.Artist, wantArtist)
 	}
 
 	wantReleased := time.Date(2022, 07, 22, 0, 0, 0, 0, time.UTC)

@@ -2,6 +2,7 @@ package camper
 
 import (
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -17,6 +18,7 @@ type Track struct {
 
 type Release struct {
 	Title    string
+	Artist   string
 	Released time.Time
 	Tracks   []Track
 	Genres   []string
@@ -50,9 +52,10 @@ func ReleaseFromURL(url string) Release {
 
 	release := Release{}
 
-	// populate Track Title
-	c.OnHTML("h2.trackTitle", func(e *colly.HTMLElement) {
-		release.Title = strings.TrimSpace(e.Text)
+	// populate Track Title, Artist
+	c.OnHTML("div#name-section", func(e *colly.HTMLElement) {
+		release.Title = strings.TrimSpace(e.ChildText("h2.trackTitle"))
+		release.Artist = strings.TrimSpace(e.ChildText("a[href]"))
 	})
 
 	// Populate any track entries
@@ -82,6 +85,12 @@ func ReleaseFromURL(url string) Release {
 	c.OnHTML("div.tralbumData.tralbum-tags", func(e *colly.HTMLElement) {
 		tags := e.ChildTexts("a.tag")
 		release.Genres = tags
+	})
+
+	c.OnScraped(func(r *colly.Response) {
+		sort.SliceStable(release.Tracks, func(i, j int) bool {
+			return release.Tracks[i].Trackno < release.Tracks[j].Trackno
+		})
 	})
 
 	c.Visit(url)
