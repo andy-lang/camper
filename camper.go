@@ -62,7 +62,13 @@ func ReleaseFromURL(url string) Release {
 	c.OnHTML("tr.track_row_view", func(e *colly.HTMLElement) {
 		tracknum, _ := strconv.Atoi(strings.Split(e.ChildText("div.track_number"), ".")[0])
 		title := e.ChildText(".track-title")
-		duration := bandcampTimeToDuration(e.ChildText("span.time"))
+
+        // duration is not set for some tracks, e.g. if it's an upcoming album and only certain songs are previewed. Make a best effort guess.
+        duration := time.Duration(0)
+        if len(e.ChildText("span.time")) > 0 {
+            duration = bandcampTimeToDuration(e.ChildText("span.time"))
+        }
+
 		track := Track{Trackno: tracknum, Title: title, Duration: duration}
 
 		release.Tracks = append(release.Tracks, track)
